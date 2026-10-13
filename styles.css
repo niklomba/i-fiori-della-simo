@@ -87,3 +87,70 @@
  .plant-scanner-start .scan-actions button:first-child{flex-basis:100%}
 }
 @media(prefers-reduced-motion:reduce){.scan-spinner{animation:none}}
+
+
+/* UX semplificata: accesso diretto scanner/diagnosi, cure leggibili */
+.home-welcome{margin:5px 0 13px}
+.home-welcome h1{font-size:clamp(1.55rem,4.9vw,2.05rem);line-height:1.12;margin:6px 0 7px}
+.home-welcome p{font-size:.91rem;line-height:1.4;color:var(--muted)}
+.home-main-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 17px}
+.home-main-action{min-width:0;border:1px solid var(--edge);border-radius:17px;background:var(--paper);padding:15px 9px;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:var(--shadow);color:var(--ink);text-align:center}
+.home-main-action>span{font-size:2rem;line-height:1.1}
+.home-main-action strong{font-size:.92rem}
+.home-main-action small{font-size:.74rem;color:var(--muted);line-height:1.22}
+.home-main-action:hover{border-color:#9dc8a9;background:#f0f6ec}
+.care-heading{margin:18px 0 12px;font-size:1.13rem}
+.care-profile-short{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.care-profile-short>div{background:#edf5ed;border:1px solid #d0e2d1;padding:13px;border-radius:12px}
+.care-profile-short small{display:block;color:#55715c;font-size:.72rem;margin-bottom:5px}
+.care-profile-short strong{display:block;font-size:.9rem;overflow-wrap:anywhere}
+.care-details{margin:12px 0 18px;border:1px solid var(--edge);border-radius:14px;background:var(--paper);padding:12px 13px}
+.care-details summary{font-weight:800;color:var(--green);cursor:pointer;line-height:1.4}
+.care-guide{display:grid;gap:10px;margin-top:15px}
+.care-line{border-bottom:1px solid var(--edge);padding:2px 0 9px}
+.care-line:last-child{border-bottom:0}
+.care-line strong{font-size:.91rem}
+.care-line p{font-size:.83rem;line-height:1.5;color:#586a59;margin-top:4px;white-space:pre-wrap}
+.care-card-actions{margin:13px 0 0}
+.care-diagnose-button{width:100%;margin:0 0 13px;min-height:45px}
+.form-advanced{border:1px solid var(--edge);background:#f4f7f1;border-radius:14px;padding:13px;margin:6px 0}
+.form-advanced summary{cursor:pointer;font-weight:750;color:#2b744e;line-height:1.5}
+.form-advanced .form-grid{padding:15px 0 4px}
+.form-advanced .form-help{font-size:.8rem}
+.diagnosis-screen{max-width:780px;margin:0 auto;display:grid;gap:15px}
+.diagnosis-screen>h1{font-size:clamp(1.7rem,5vw,2.2rem);margin:0}
+.diagnosis-screen>.muted{margin:0 0 3px}
+.diagnosis-start{border:1px solid var(--edge);border-radius:18px;background:var(--paper);padding:12px}
+.diagnosis-placeholder{background:radial-gradient(circle,#e5f2df,#f5f9f1);min-height:210px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.diagnosis-placeholder>span{font-size:4rem}
+.diagnosis-placeholder strong{font-size:1.2rem}
+.diagnosis-placeholder small{color:var(--muted);text-align:center}
+.diagnosis-preview{display:block;width:100%;max-height:340px;object-fit:contain;border-radius:12px;background:#e5f0e6}
+.diagnosis-start-actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.diagnosis-start-actions button{flex:1 1 100px}
+.diagnosis-start-actions button:first-child{flex:2 1 150px}
+.diagnosis-photo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.diagnosis-photo-controls label{font-weight:750;font-size:.87rem}
+.diagnosis-photo-controls select,.diagnosis-save select{border:1px solid var(--edge);border-radius:11px;background:white;padding:11px;min-width:0;flex:1}
+.diagnosis-photo-controls button{flex:1 0 190px}
+.diagnosis-results{display:grid;gap:11px}
+.diagnosis-results h2{font-size:1.2rem}
+.diagnosis-result{display:flex;gap:12px;align-items:center;border:1px solid #d5e4d4;background:var(--paper);padding:12px;border-radius:14px}
+.diagnosis-result>div{min-width:0}
+.diagnosis-result strong{display:block;font-size:.9rem;overflow-wrap:anywhere}
+.diagnosis-safety{background:#ecf5eb;border:1px solid #cfe2ce;padding:16px;border-radius:15px}
+.diagnosis-safety ul{padding-left:21px;font-size:.84rem;line-height:1.5;margin:8px 0}
+.diagnosis-safety li{margin:6px 0}
+.diagnosis-safety p{font-size:.8rem;color:var(--muted)}
+.diagnosis-save{display:grid;gap:9px;border:1px solid var(--edge);border-radius:15px;padding:14px;background:var(--paper)}
+.diagnosis-save label{font-weight:750;font-size:.87rem}
+.diagnosis-save button{width:100%}
+.care-undo-notice{background:#e7f3e6;border:1px solid #bcdcbc;border-radius:14px;padding:11px 13px;display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 0}
+.care-undo-notice strong{display:block;font-size:.87rem}
+.care-undo-notice small{font-size:.72rem;color:var(--muted);display:block;margin-top:4px}
+.care-undo-button{color:#175137;background:#d4e9d5;border:1px solid #a9ccae;font-weight:750;white-space:nowrap}
+.care-remove-btn{position:relative;float:right;background:#f8eae8;color:#913e3a;border:1px solid #e9c8c6;border-radius:9px;width:31px;height:31px;font-size:1.3rem;line-height:1;cursor:pointer}
+.care-remove-btn:hover{background:#f0d4d1}
+.toast{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.toast-undo-button{border:1px solid #acd5bd;background:#eaf5eb;color:#164b31;font-weight:800;border-radius:9px;padding:8px 11px}
+@media(max-width:540px){.home-main-actions{gap:6px}.home-main-action{padding:12px 5px;border-radius:13px}.home-main-action>span{font-size:1.75rem}.home-main-action strong{font-size:.8rem}.home-main-action small{font-size:.65rem}.diagnosis-photo-controls button{flex-basis:100%}.care-undo-notice{align-items:flex-start}.care-undo-notice small{font-size:.68rem}}
