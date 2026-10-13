@@ -1,9 +1,9 @@
-const CACHE = 'ifiori-simo-shell-v030-scan';
+const CACHE = 'ifiori-simo-shell-v040-care-health';
 const PREFIX = 'ifiori-simo-shell-';
 const FILES = [
   './', './index.html', './installa.html', './styles.css',
   './catalogo.js', './catalogo-extra.js', './identifica.js',
-  './app.js', './install.js', './manifest.webmanifest',
+  './app.js', './cure.js', './diagnosi-foto.js', './install.js', './manifest.webmanifest',
   './brand.png', './hero-girl.webp',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
