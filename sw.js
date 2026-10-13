@@ -1,11 +1,11 @@
-const CACHE = 'ifiori-simo-shell-v040-care-health';
+const CACHE = 'ifiori-simo-shell-v041-new-icon';
 const PREFIX = 'ifiori-simo-shell-';
 const FILES = [
   './', './index.html', './installa.html', './styles.css',
   './catalogo.js', './catalogo-extra.js', './identifica.js',
   './app.js', './cure.js', './diagnosi-foto.js', './install.js', './manifest.webmanifest',
   './brand.png', './hero-girl.webp',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
+  './icons/icon-192-v041.png', './icons/icon-512-v041.png', './icons/apple-touch-icon-v041.png'
 ];
 
 self.addEventListener('install', event => {
