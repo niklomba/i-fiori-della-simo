@@ -28,6 +28,17 @@
       </div>
     </header>
 
+    <section class="pwa-install-banner" id="pwaInstallBanner" hidden aria-label="Installazione dell'app">
+      <div class="pwa-install-copy">
+        <span class="pwa-install-symbol" aria-hidden="true">📲</span>
+        <div><strong>Installa I FIORI della SIMO</strong><small>Aprila dalla schermata Home, senza cercare il sito</small></div>
+      </div>
+      <div class="pwa-install-actions">
+        <button type="button" id="pwaInstallButton" class="pwa-install-button">Installa app</button>
+        <button type="button" id="pwaInstallDismiss" class="pwa-install-dismiss" aria-label="Nascondi il suggerimento di installazione" title="Nascondi">×</button>
+      </div>
+    </section>
+
     <main class="main-content" id="main" tabindex="-1"><div class="loading-message">Caricamento del tuo giardino…</div></main>
 
     <nav class="bottom-nav" aria-label="Navigazione principale">
@@ -39,6 +50,13 @@
     </nav>
   </div>
 
+  <dialog id="pwaInstallDialog" class="pwa-install-dialog" aria-label="Come installare l’applicazione">
+    <div class="pwa-install-dialog-inner">
+      <h2>Installa I FIORI della SIMO</h2>
+      <div id="pwaInstallHelpContent"></div>
+      <button type="button" id="pwaInstallHelpClose" class="pwa-install-button">Ho capito</button>
+    </div>
+  </dialog>
   <dialog id="modal" class="sheet"><div id="modalContent"></div></dialog>
   <div id="toast" role="status" aria-live="polite" class="toast" hidden></div>
   <input id="restoreInput" type="file" accept="application/json,.json" hidden>
@@ -46,5 +64,6 @@
   <script src="./catalogo-extra.js" defer></script>
   <script src="./identifica.js" defer></script>
   <script src="./app.js" defer></script>
+  <script src="./install.js" defer></script>
 </body>
 </html>
