@@ -1,5 +1,5 @@
-const CACHE = 'ifiori-simo-shell-v011';
-const FILES = ['./', './index.html', './styles.css', './catalogo.js', './app.js', './manifest.webmanifest', './brand.png', './hero-girl.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
+const CACHE = 'ifiori-simo-shell-v020';
+const FILES = ['./', './index.html', './styles.css', './catalogo.js', './catalogo-extra.js', './identifica.js', './app.js', './manifest.webmanifest', './brand.png', './hero-girl.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
 });
