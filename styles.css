@@ -45,3 +45,45 @@
 .pwa-install-button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 @media(max-width:540px){.pwa-install-banner{top:80px}}
 @media(display-mode:standalone){#pwaInstallBanner{display:none!important}}
+
+
+/* v0.3.0 – camera scanner botanico */
+.scan-page{max-width:740px}
+.scan-page>h1{font-size:clamp(1.7rem,5vw,2.35rem)}
+.scan-page>.muted{margin-bottom:3px}
+.plant-scanner-start{border:1px solid var(--edge);border-radius:22px;background:linear-gradient(145deg,#eef6ed,#fdfefa);padding:12px;display:grid;gap:13px}
+.plant-scanner-start-graphic{position:relative;isolation:isolate;min-height:240px;background:radial-gradient(circle at center,#d6ebd7,#ecf4e9 70%);display:grid;place-items:center;border-radius:16px;overflow:hidden}
+.plant-scanner-start-graphic>span{font-size:5.4rem;filter:drop-shadow(0 12px 12px #3b775533)}
+.plant-scanner-start-frame{position:absolute;inset:10% 18%;border:2px solid #67a77d;border-radius:24px;pointer-events:none;opacity:.8}
+.plant-scanner-start-frame:before,.plant-scanner-start-frame:after{content:"";position:absolute;width:33px;height:33px;border-color:#24734a;border-style:solid}
+.plant-scanner-start-frame:before{top:-2px;left:-2px;border-width:4px 0 0 4px;border-radius:18px 0 0 0}
+.plant-scanner-start-frame:after{right:-2px;bottom:-2px;border-width:0 4px 4px 0;border-radius:0 0 18px 0}
+.plant-scanner-start .scan-actions{justify-content:center;margin:0;gap:8px}
+.plant-scanner-start .scan-actions button{flex:1 1 170px;min-height:45px}
+.plant-scanner-live{position:relative;height:min(62vh,510px);min-height:290px;background:#102d21;border-radius:22px;overflow:hidden;isolation:isolate;box-shadow:0 12px 30px #122d1f18}
+.plant-scanner-live video{display:block;width:100%;height:100%;object-fit:cover;background:#153321}
+.plant-scanner-frame{position:absolute;inset:13% 12%;pointer-events:none;border:1px solid #ffffff70;border-radius:25px;box-shadow:0 0 0 900px rgba(0,0,0,.08)}
+.plant-scanner-frame:before,.plant-scanner-frame:after{content:"";position:absolute;width:42px;height:42px;border-color:#b2edc6;border-style:solid}
+.plant-scanner-frame:before{top:-2px;left:-2px;border-width:5px 0 0 5px;border-radius:22px 0 0 0}
+.plant-scanner-frame:after{bottom:-2px;right:-2px;border-width:0 5px 5px 0;border-radius:0 0 22px 0}
+.plant-scanner-live-tag{position:absolute;top:14px;left:14px;color:#fff;background:#0c291baa;backdrop-filter:blur(7px);border:1px solid #ffffff36;padding:7px 11px;border-radius:999px;font-size:.72rem;font-weight:850;letter-spacing:.04em}
+.plant-scanner-tip{position:absolute;bottom:16px;left:16px;right:16px;padding:10px;background:#0c291bbb;border:1px solid #ffffff40;color:white;text-align:center;border-radius:12px;font-size:.89rem;font-weight:750}
+.scan-camera-status{background:#e5f0e6;border:1px solid #bfd7c3;border-radius:14px;padding:12px 14px;font-size:.9rem;font-weight:650;color:#235d3e}
+.scan-page .scan-go{min-height:49px}
+.scan-page .scan-actions .btn{min-height:44px}
+.scan-progress{display:flex;align-items:center;gap:13px;border:1px solid #b5d2bc;background:#edf6ec;padding:17px;border-radius:15px;font-weight:700;color:#225e42;line-height:1.4}
+.scan-spinner{width:23px;height:23px;flex:none;border:3px solid #b5d5c1;border-top-color:#287950;border-radius:50%;animation:scan-turn 1s linear infinite}
+@keyframes scan-turn{to{transform:rotate(360deg)}}
+.scan-low-score{color:#9c641d;font-size:.82rem;padding:8px 0}
+.scan-page .scan-results{margin-top:12px}
+.scan-page .scan-preview img{max-height:420px}
+@media(max-width:540px){
+ .plant-scanner-start{padding:9px}
+ .plant-scanner-start-graphic{min-height:195px}
+ .plant-scanner-start-graphic>span{font-size:4.1rem}
+ .plant-scanner-live{height:min(57vh,440px);min-height:265px}
+ .plant-scanner-frame{inset:14% 9%}
+ .plant-scanner-start .scan-actions button{flex:1 1 38%;font-size:.87rem}
+ .plant-scanner-start .scan-actions button:first-child{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){.scan-spinner{animation:none}}
