@@ -9,7 +9,7 @@
   const apiKey=()=>{try{return localStorage.getItem(keyStore)||'';}catch(_){return '';}};
   let chosen=null, photoData='', previewUrl='', results=[], error='', busy=false, selectedOrgan='auto';
   let cameraStream=null, cameraActive=false, startingCamera=false, cameraGeneration=0, autoTimer=null;
-  let cameraStatus='';
+  let cameraStatus='', capturing=false;
 
   function releasePhoto(){
     if(previewUrl)URL.revokeObjectURL(previewUrl);
@@ -38,7 +38,7 @@
   }
   function scheduleSingleScan(){
     clearTimeout(autoTimer);autoTimer=null;
-    if(!cameraActive||!cameraStream||busy)return;
+    if(!cameraActive||!cameraStream||busy||capturing)return;
     const video=$('#scanVideo');
     if(!video||video.readyState<2||!video.videoWidth)return;
     if(!apiKey()){
@@ -78,6 +78,7 @@
           '<button class="btn btn-soft btn-small" type="button" data-action="recognized-plant" data-from-scan="1" data-name="'+E(common)+'" data-scientific="'+E(latin)+'" data-catalog-id="'+E(local?.id||'')+'">＋ Aggiungi al giardino</button></div>';
       }).join('')+'</div>';
   }
+  function renderIfVisible(){const main=$('#main');if(main?.querySelector('.scan-page'))render(main);}
   function render(main){
     if(!main)return;
     clearTimeout(autoTimer);autoTimer=null;
@@ -141,7 +142,7 @@
     results=[];error='';selectedOrgan='auto';
     const token=++cameraGeneration;
     startingCamera=true;
-    render($('#main'));
+    renderIfVisible();
     try{
       if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new Error('Fotocamera non disponibile in questo browser.');
       let stream;
@@ -159,12 +160,12 @@
       }
       cameraStream=stream;cameraActive=true;startingCamera=false;
       cameraStatus='Inquadra la pianta e tieni fermo il telefono…';
-      render($('#main'));
+      renderIfVisible();
     }catch(err){
       if(token!==cameraGeneration)return;
       stopCamera();
       error=errorForCamera(err);
-      render($('#main'));
+      renderIfVisible();
     }
   }
   async function selectBlob(blob){
@@ -191,20 +192,23 @@
     if(!file||busy)return;
     stopCamera();
     error='';results=[];
-    if(!file.type.startsWith('image/')){error='Seleziona una fotografia.';render($('#main'));return;}
-    if(file.size>25*1024*1024){error='Foto troppo grande: massimo 25 MB.';render($('#main'));return;}
+    if(!file.type.startsWith('image/')){error='Seleziona una fotografia.';renderIfVisible();return;}
+    if(file.size>25*1024*1024){error='Foto troppo grande: massimo 25 MB.';renderIfVisible();return;}
     try{
       await selectBlob(file);
-      render($('#main'));
+      renderIfVisible();
       if(apiKey())await identify();
-      else{error='Foto pronta. Prima configura la chiave gratuita Pl@ntNet per riconoscere la specie.';render($('#main'));}
-    }catch(err){error='Non riesco a leggere questa fotografia: '+String(err.message||err);render($('#main'));}
+      else{error='Foto pronta. Prima configura la chiave gratuita Pl@ntNet per riconoscere la specie.';renderIfVisible();}
+    }catch(err){error='Non riesco a leggere questa fotografia: '+String(err.message||err);renderIfVisible();}
   }
   async function captureAndIdentify(){
     clearTimeout(autoTimer);autoTimer=null;
-    if(!cameraActive||!cameraStream||busy)return;
+    if(!cameraActive||!cameraStream||busy||capturing)return;
+    capturing=true;
+    const captureGeneration=cameraGeneration;
     const video=$('#scanVideo');
     if(!video||video.readyState<2||!video.videoWidth){
+      capturing=false;
       setCameraStatus('Attendo la messa a fuoco. Tieni ferma la pianta e riprova.');
       return;
     }
@@ -215,22 +219,24 @@
       canvas.height=Math.max(1,Math.round(video.videoHeight*scale));
       canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
       const jpeg=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Impossibile scattare.')),'image/jpeg',0.84));
+      if(captureGeneration!==cameraGeneration)return;
       if(previewUrl)URL.revokeObjectURL(previewUrl);
       chosen=jpeg;
       photoData=canvas.toDataURL('image/jpeg',0.8);
       previewUrl=URL.createObjectURL(jpeg);
       stopCamera();results=[];error='';
-      render($('#main'));
+      renderIfVisible();
       if(apiKey())await identify();
-      else{error='Scatto acquisito. Configura la tua chiave gratuita Pl@ntNet per completare il riconoscimento.';render($('#main'));}
-    }catch(err){setCameraStatus('Scatto non riuscito: '+String(err.message||err));}
+      else{error='Scatto acquisito. Configura la tua chiave gratuita Pl@ntNet per completare il riconoscimento.';renderIfVisible();}
+    }catch(err){if(captureGeneration===cameraGeneration)setCameraStatus('Scatto non riuscito: '+String(err.message||err));}
+    finally{capturing=false;}
   }
   async function identify(){
     if(busy||!chosen)return;
     const key=apiKey();
-    if(!key){error='Configura la tua chiave API Pl@ntNet gratuita per identificare la pianta.';render($('#main'));return;}
-    if(navigator.onLine===false){error='Per il riconoscimento è necessaria una connessione Internet.';render($('#main'));return;}
-    busy=true;results=[];error='';render($('#main'));
+    if(!key){error='Configura la tua chiave API Pl@ntNet gratuita per identificare la pianta.';renderIfVisible();return;}
+    if(navigator.onLine===false){error='Per il riconoscimento è necessaria una connessione Internet.';renderIfVisible();return;}
+    busy=true;results=[];error='';renderIfVisible();
     const fd=new FormData();
     fd.append('images',chosen,'pianta.jpg');
     fd.append('organs',selectedOrgan);
@@ -257,29 +263,30 @@
       error=err.name==='AbortError'?'La ricerca ha impiegato troppo tempo. Riprova con una connessione migliore.':
         err instanceof TypeError?'Impossibile comunicare con Pl@ntNet. Verifica la connessione e le autorizzazioni CORS della tua chiave.':
         String(err.message||err);
-    }finally{clearTimeout(timeout);busy=false;render($('#main'));}
+    }finally{clearTimeout(timeout);busy=false;renderIfVisible();}
   }
   document.addEventListener('click',event=>{
     const el=event.target.closest('[data-id-action]');if(!el)return;
     switch(el.dataset.idAction){
       case 'start-camera':startCamera();break;
-      case 'stop-camera':stopCamera();render($('#main'));break;
+      case 'stop-camera':stopCamera();renderIfVisible();break;
       case 'snap':captureAndIdentify();break;
       case 'camera-file':$('#scanCameraFile')?.click();break;
       case 'gallery':$('#scanGallery')?.click();break;
       case 'identify':identify();break;
       case 'save-key':{
         const key=$('#scanKey')?.value?.trim();
-        if(!key){error='Incolla una chiave Pl@ntNet valida.';render($('#main'));break;}
-        try{localStorage.setItem(keyStore,key);error='';render($('#main'));}
-        catch(_){error='Impossibile salvare la chiave sul dispositivo. Consenti la memorizzazione dei dati del sito.';render($('#main'));}
+        if(!key){error='Incolla una chiave Pl@ntNet valida.';renderIfVisible();break;}
+        try{localStorage.setItem(keyStore,key);error='';renderIfVisible();}
+        catch(_){error='Impossibile salvare la chiave sul dispositivo. Consenti la memorizzazione dei dati del sito.';renderIfVisible();}
         break;
       }
       case 'clear-key':
         try{localStorage.removeItem(keyStore);}catch(_){}
-        error='';render($('#main'));break;
+        error='';renderIfVisible();break;
     }
   });
+  window.addEventListener('pagehide',stopCamera);
   window.SIMO_ID={
     render,
     stopCamera,
