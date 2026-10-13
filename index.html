@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f7f0">
+  <meta name="application-name" content="I FIORI della SIMO">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="I FIORI della SIMO">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="description" content="Il tuo giardino personale, gratuito e privato: piante, cure, diario e promemoria.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>I FIORI della SIMO</title>
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <button id="brandHome" type="button" class="brand-btn" aria-label="Vai alla schermata Oggi">
+          <img src="./icons/icon-192.png" alt="Mascotte I FIORI della SIMO" class="brand-icon">
+          <span class="brand-title"><strong>I FIORI</strong><span>della <strong>SIMO</strong></span><small>Il tuo giardino, ogni giorno</small></span>
+        </button>
+        <div class="header-actions"><span class="local-tag"><span class="local-dot"></span>Solo sul dispositivo</span><button class="add-icon-btn" data-action="new-plant" aria-label="Aggiungi una pianta" title="Aggiungi una pianta">+</button></div>
+      </div>
+    </header>
+
+    <main class="main-content" id="main" tabindex="-1"><div class="loading-message">Caricamento del tuo giardino…</div></main>
+
+    <nav class="bottom-nav" aria-label="Navigazione principale">
+      <button data-view="oggi" class="nav-button active"><span class="nav-symbol">⌂</span><span>Oggi</span></button>
+      <button data-view="giardino" class="nav-button"><span class="nav-symbol">❀</span><span>Giardino</span></button>
+      <button data-view="calendario" class="nav-button"><span class="nav-symbol">▦</span><span>Calendario</span></button>
+      <button data-view="enciclopedia" class="nav-button"><span class="nav-symbol">♧</span><span>Enciclopedia</span></button>
+      <button data-view="altro" class="nav-button"><span class="nav-symbol">☰</span><span>Altro</span></button>
+    </nav>
+  </div>
+
+  <dialog id="modal" class="sheet"><div id="modalContent"></div></dialog>
+  <div id="toast" role="status" aria-live="polite" class="toast" hidden></div>
+  <input id="restoreInput" type="file" accept="application/json,.json" hidden>
+  <script src="./catalogo.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
