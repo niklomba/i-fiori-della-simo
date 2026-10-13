@@ -1,4 +1,4 @@
-const CACHE = 'ifiori-simo-shell-v022-install';
+const CACHE = 'ifiori-simo-shell-v030-scan';
 const PREFIX = 'ifiori-simo-shell-';
 const FILES = [
   './', './index.html', './installa.html', './styles.css',
