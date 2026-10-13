@@ -31,6 +31,14 @@ jobs:
           test -f app.js
           test -f styles.css
 
+      - name: Controlla JavaScript
+        run: |
+          node --check app.js
+          node --check catalogo.js
+          node --check catalogo-extra.js
+          node --check identifica.js
+          node --check sw.js
+
       - name: Configura GitHub Pages
         uses: actions/configure-pages@v5
 
