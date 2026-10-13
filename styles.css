@@ -38,3 +38,10 @@
 .pwa-install-dialog li{margin-bottom:9px}
 .pwa-install-dialog-inner>.pwa-install-button{margin-top:12px;width:100%}
 @media(max-width:540px){.pwa-install-banner{width:calc(100% - 24px);margin-top:8px;padding:9px 8px;gap:6px}.pwa-install-copy{gap:6px}.pwa-install-copy strong{font-size:.78rem}.pwa-install-copy small{font-size:.67rem}.pwa-install-symbol{font-size:1.23rem}.pwa-install-button{font-size:.76rem;padding:9px 8px}.pwa-install-dismiss{min-width:25px;font-size:1.35rem}}
+
+
+/* v0.2.2: installazione sempre visibile nel browser, nascosta da CSS nella PWA */
+.pwa-install-banner{position:sticky;top:88px;z-index:19}
+.pwa-install-button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+@media(max-width:540px){.pwa-install-banner{top:80px}}
+@media(display-mode:standalone){#pwaInstallBanner{display:none!important}}
