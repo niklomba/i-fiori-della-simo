@@ -71,6 +71,12 @@
 </main>
 <script>
 (() => {
+  // Opening the installation guide also checks for a new offline-app version.
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(registration => registration.update())
+      .catch(error => console.warn('Aggiornamento app non disponibile:', error));
+  }
   const button=document.getElementById('nativeInstall');
   const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
   if(isStandalone()) document.getElementById('alreadyInstalled').style.display='block';
