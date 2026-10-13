@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -23,6 +23,22 @@ jobs:
     steps:
       - name: Scarica il progetto
         uses: actions/checkout@v4
+
+      - name: Genera le icone della mascotte
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 scripts/generate-icons.py
+
+      - name: Salva icone aggiornate nel repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons/icon-192.png icons/icon-512.png icons/apple-touch-icon.png
+          git add icons/icon-192-v041.png icons/icon-512-v041.png icons/apple-touch-icon-v041.png
+          if ! git diff --cached --quiet; then
+            git commit -m "Aggiorna icone Fiori di Simo per Android e iPhone"
+            git push || echo "Impossibile salvare le icone sul branch; il sito pubblicato include comunque quelle aggiornate"
+          fi
 
       - name: Verifica file app
         run: |
