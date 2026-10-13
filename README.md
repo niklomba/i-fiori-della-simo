@@ -35,3 +35,14 @@ Effettua backup periodici e **non cancellare i dati del sito** per aggiornare la
 
 ## File principali
 `catalogo.js` (22 schede), `catalogo-extra.js` (333 specie aggiunte), `identifica.js` (Pl@ntNet), `app.js` (interfaccia), `sw.js` (cache offline).
+
+
+## Scanner botanico con fotocamera (v0.3.0)
+
+- **Identifica → Avvia scanner**: richiede il permesso alla fotocamera posteriore, mostra il video in diretta con una cornice e acquisisce **una sola fotografia dopo circa 2 secondi** quando il video è pronto. Con una chiave API Pl@ntNet valida, la foto viene inviata e appaiono fino a 5 identificazioni possibili.
+- **Riconosci ora**: acquisizione manuale immediata. **Foto**: apre la fotocamera del sistema operativo. **Galleria**: analizza una foto già presente.
+- La videocamera viene spenta immediatamente dopo lo scatto, quando si preme «Chiudi fotocamera» e quando si passa a un'altra sezione; non viene trasmesso video continuo.
+- Occorre HTTPS, Internet e **una chiave API Pl@ntNet personale** (https://my.plantnet.org/), da abilitare per uso CORS e autorizzare per il dominio https://niklomba.github.io. Senza chiave funziona la fotocamera ma **non l'identificazione AI**.
+- Le fotografie sono inviate al servizio esterno solo dopo l'azione dell'utente; i dati salvati delle piante restano sul dispositivo.
+- È un riconoscimento probabilistico: confrontare i risultati e le alternative; non affidarsi alla sola foto per dichiarare una pianta commestibile o non tossica.
+- Per ricaricare dopo gli aggiornamenti, aprire nuovamente il link HTTPS; l'app conserva IndexedDB.
