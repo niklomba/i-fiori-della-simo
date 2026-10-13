@@ -154,3 +154,7 @@
 .toast{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
 .toast-undo-button{border:1px solid #acd5bd;background:#eaf5eb;color:#164b31;font-weight:800;border-radius:9px;padding:8px 11px}
 @media(max-width:540px){.home-main-actions{gap:6px}.home-main-action{padding:12px 5px;border-radius:13px}.home-main-action>span{font-size:1.75rem}.home-main-action strong{font-size:.8rem}.home-main-action small{font-size:.65rem}.diagnosis-photo-controls button{flex-basis:100%}.care-undo-notice{align-items:flex-start}.care-undo-notice small{font-size:.68rem}}
+
+.diagnosis-first-aid{border:1px solid #c6dabc;border-radius:13px;background:#f1f7e9;padding:13px 15px}
+.diagnosis-first-aid strong{font-size:.87rem;color:#235f3d}
+.diagnosis-first-aid p{font-size:.84rem;line-height:1.5;color:#47614a;margin:6px 0 0}
