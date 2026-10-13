@@ -42,16 +42,16 @@
     t.append(button);t.hidden=false;
     toastTimer=setTimeout(()=>t.hidden=true,8500);
   }
-  function recentCareNotice(){
+  function recentCareNotice(plantId=''){
     const e=state.events.find(e=>e.id===lastCareEventId);
-    if(!e||!['water','feed'].includes(e.type))return '';
+    if(!e||!['water','feed'].includes(e.type)||(plantId&&e.plantId!==plantId))return '';
     const p=state.plants.find(p=>p.id===e.plantId);
     if(!p)return '';
     const name=e.type==='water'?'Annaffiatura':'Concimazione';
     return `<div class="care-undo-notice" role="status"><span><strong>✓ ${name} registrata</strong><small>${esc(plantName(p))} · ${showDate(e.date)} · Hai sbagliato?</small></span><button type="button" class="btn btn-small care-undo-button" data-action="undo-care" data-event-id="${attr(e.id)}">↶ Annulla</button></div>`;
   }
   function errorToast(e){console.error(e);toast('Impossibile salvare. Controlla lo spazio disponibile sul dispositivo.');}
-  function setView(next){if(view==='identifica'&&next!=='identifica')window.SIMO_ID?.stopCamera?.();if(view==='diagnosi'&&next!=='diagnosi')window.SIMO_DIAG?.stopCamera?.();view=next;document.querySelectorAll('[data-view]').forEach(el=>{const active=el.dataset.view===next;el.classList.toggle('active',active);if(el.classList.contains('nav-button'))el.setAttribute('aria-current',active?'page':'false')});render();window.scrollTo({top:0,behavior:'instant'});}
+  function setView(next){if(view==='identifica'&&next!=='identifica')window.SIMO_ID?.stopCamera?.();if(view==='diagnosi'&&next!=='diagnosi')window.SIMO_DIAG?.stopCamera?.();if(modal.open)closeModal();view=next;document.querySelectorAll('[data-view]').forEach(el=>{const active=el.dataset.view===next;el.classList.toggle('active',active);if(el.classList.contains('nav-button'))el.setAttribute('aria-current',active?'page':'false')});render();window.scrollTo({top:0,behavior:'instant'});}
   function btn(label,action,extra='',css='btn-primary'){return `<button type="button" class="btn ${css}" data-action="${action}" ${extra}>${label}</button>`;}
   function header(title,subtitle,button=''){return `<div class="page-title"><div><div class="eyebrow">I FIORI della SIMO</div><h1>${title}</h1></div>${button}</div><p class="section-intro">${subtitle}</p>`;}
   function empty(emoji,title,message,action,button){return `<div class="empty"><div class="empty-icon">${emoji}</div><h2>${title}</h2><p>${message}</p>${action?btn(button,action):''}</div>`;}
@@ -177,7 +177,7 @@
     <details class="care-details"><summary>Consigli: acqua, luce, terriccio, concime e sicurezza</summary>${careGuideHTML(p,sp)}<div class="care-card-actions">${btn('⚙️ Personalizza','edit-plant',`data-id="${attr(p.id)}"`,'btn-soft btn-small')}</div></details>
     <button class="btn btn-soft care-diagnose-button" type="button" data-view="diagnosi">🩺 Diagnosi fotografica</button>
     <div class="profile-actions">${btn('💧 Ho annaffiato','do-task',`data-id="${attr(p.id)}" data-type="water"`,'btn-soft')}${btn('🌱 Ho concimato','do-task',`data-id="${attr(p.id)}" data-type="feed"`,'btn-soft')}${btn('＋ Nota / intervento','new-event',`data-id="${attr(p.id)}"`,'btn-ghost')}</div>
-    ${recentCareNotice()}
+    ${recentCareNotice(id)}
     <div class="section-head"><h3>Diario della pianta</h3>${btn('Modifica','edit-plant',`data-id="${attr(p.id)}"`,'btn-ghost btn-small')}</div>
     ${history.length?`<div class="timeline">${history.slice(0,40).map(e=>`<div class="timeline-item"><time>${showDate(e.date,{day:'numeric',month:'long',year:'numeric'})}</time><strong>${({water:'💧 Annaffiatura',feed:'🌱 Concimazione',prune:'✂️ Potatura',repot:'🪴 Rinvaso',note:'📝 Nota'})[e.type]||'Intervento'}</strong>${['water','feed'].includes(e.type)?`<button type="button" class="care-remove-btn" data-action="undo-care" data-event-id="${attr(e.id)}" aria-label="Elimina questa registrazione di ${e.type==='water'?'annaffiatura':'concimazione'}" title="Elimina registrazione errata">×</button>`:''}${e.text?`<p class="muted tiny">${esc(e.text)}</p>`:''}</div>`).join('')}</div>`:'<p class="muted tiny">Nessun intervento registrato. Le tue cure appariranno qui.</p>'}
     <div class="form-actions" style="margin-top:24px">${btn('Elimina pianta','delete-plant',`data-id="${attr(p.id)}"`,'btn-danger btn-small')}</div>`);
