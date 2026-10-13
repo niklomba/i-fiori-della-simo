@@ -19,6 +19,18 @@
     stream=null;cameraLive=false;cameraStarting=false;
   }
   const bestCandidate=()=>candidates[0]||null;
+  function specificFirstAid(top){
+    const name=String((top?.description||top?.label||top?.name)||'').toLowerCase();
+    let message='';
+    if(/aphis|afid|aphid|coccinigli|coccid|mealybug|scale insect/.test(name))
+      message='Possibile presenza di insetti succhiatori: ispeziona il retro delle foglie e i germogli; se gli insetti sono confermati e pochi, rimuovili delicatamente a mano o con un panno umido, senza danneggiare la pianta.';
+    else if(/oidio|powdery mildew|erysiph|uncinul|peronospor|downy mildew/.test(name))
+      message='Possibile problema fungino: evita di bagnare regolarmente le foglie, migliora la circolazione d’aria e separa temporaneamente la pianta se i sintomi aumentano.';
+    else if(/rust|ruggine|puccin|tranzsch|macchi|spot|anthrac|antrac/.test(name))
+      message='Possibili lesioni o macchie: ispeziona foglie nuove e vecchie, annota l’evoluzione e verifica ristagni o bagnature prolungate. Non applicare fungicidi senza confermare la causa.';
+    if(!message)return '';
+    return '<div class="diagnosis-first-aid"><strong>Primo intervento prudente, solo se i sintomi corrispondono</strong><p>'+E(message)+'</p></div>';
+  }
   function guidance(){
     return '<div class="diagnosis-safety">'+
       '<strong>Primi controlli sicuri</strong><ul>'+
@@ -39,7 +51,7 @@
         const score=Math.max(0,Math.min(100,Number(r.score)*100));
         return '<article class="diagnosis-result"><span class="scan-rank">'+(i+1)+'</span><div><strong>'+E(label)+'</strong><div class="muted tiny">Codice diagnostico'+E(code)+'</div><span class="scan-score">'+score.toFixed(1)+'% indice del modello</span></div></article>';
       }).join('')+
-      guidance()+
+      specificFirstAid(top)+guidance()+
       (plantChoices.length?
       '<div class="diagnosis-save"><label for="diagnosisPlant">Salva il risultato nel diario di una pianta</label><select id="diagnosisPlant"><option value="">Seleziona una pianta</option>'+
       plantChoices.map(p=>'<option value="'+E(p.id)+'" '+(p.id===chosenPlantId?'selected':'')+'>'+E(p.name)+'</option>').join('')+
