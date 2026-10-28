@@ -158,3 +158,64 @@
 .diagnosis-first-aid{border:1px solid #c6dabc;border-radius:13px;background:#f1f7e9;padding:13px 15px}
 .diagnosis-first-aid strong{font-size:.87rem;color:#235f3d}
 .diagnosis-first-aid p{font-size:.84rem;line-height:1.5;color:#47614a;margin:6px 0 0}
+
+
+/* Calendario cure v0.5 — compatto e leggibile anche con molte piante */
+.simo-calendar{display:grid;gap:16px;max-width:920px;margin:0 auto 60px}
+.simo-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.simo-toggle{display:flex;background:#e7efe6;border-radius:14px;padding:4px;gap:3px}
+.simo-toggle button{border:0;border-radius:11px;padding:11px 16px;background:transparent;color:#42634e;font-weight:750}
+.simo-toggle button.on{background:#fff;color:#1d6845;box-shadow:0 2px 8px #244d3020}
+.simo-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px}
+.simo-nav strong{font-size:clamp(1.1rem,4vw,1.45rem);text-transform:capitalize;text-align:center}
+.simo-nav>button{width:44px;height:44px;background:#fff;border:1px solid var(--edge);border-radius:13px;font-size:31px;color:#2a754c}
+.simo-calendar-summary{color:var(--muted);font-size:.85rem;margin:0}
+.simo-weekdays,.simo-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.simo-weekdays span{text-align:center;font-size:.75rem;font-weight:800;color:#466e53;padding:9px 0}
+.simo-days{gap:4px}
+.simo-day{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;border:1px solid #dce7dc;background:#fffefa;border-radius:12px;padding:7px;min-height:91px;overflow:hidden;color:var(--ink);min-width:0}
+.simo-day.outside{opacity:.43}
+.simo-day.current{border:2px solid #2c8b58}
+.simo-day.selected{background:#e1f0e5;border:2px solid #246c48}
+.simo-day-num{font-size:.88rem;font-weight:800}
+.simo-day-items{display:flex;align-items:flex-start;flex-direction:column;gap:3px;width:100%;min-width:0}
+.simo-chip{font-size:.69rem;font-weight:750;line-height:1.2;background:#e5eef0;color:#174f72;border-radius:6px;padding:3px 4px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.simo-chip.feed{background:#e5eee0;color:#43612b}
+.simo-chip.custom{background:#fbedd8;color:#795020}
+.simo-more{font-size:.68rem;color:#435c4b;font-weight:800}
+.simo-day-detail{background:#fff;border:1px solid var(--edge);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.simo-day-detail h3{font-size:1.08rem;margin:0 0 12px;text-transform:capitalize}
+.simo-count{font-size:.72rem;font-weight:600;color:#4f6858;white-space:nowrap;margin-left:6px}
+.simo-task{display:flex;align-items:center;gap:11px;padding:12px 2px;border-top:1px solid #e6ece5}
+.simo-task-number{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;background:#e0ede2;color:#205d3e;border-radius:11px;font-weight:800;font-size:.86rem}
+.simo-task-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.simo-task-body strong{font-size:.91rem;overflow-wrap:anywhere}
+.simo-task-body small{color:#647565;font-size:.8rem}
+.simo-task-controls{display:flex;align-items:center;gap:5px}
+.simo-task-controls .btn{min-height:34px;padding:7px 10px;font-size:.79rem}
+.simo-delete{border:0;background:#fbe8e9;color:#a5434c;border-radius:8px;width:31px;height:32px;font-size:22px}
+.simo-drawer{border:1px solid var(--edge);background:#fffefa;border-radius:17px;padding:15px 17px}
+.simo-drawer>summary{cursor:pointer;font-weight:800;color:#244735}
+.simo-drawer>p{line-height:1.55}
+.simo-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin-top:15px}
+.simo-legend>div{display:flex;align-items:baseline;gap:7px;background:#f0f6ef;padding:10px;border-radius:10px;min-width:0}
+.simo-legend>div>b{color:#2b744e}
+.simo-legend>div>span{font-weight:650;overflow-wrap:anywhere}
+.simo-legend>div>small{margin-left:auto;color:#6e8471}
+.simo-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.simo-form label{font-size:.81rem;font-weight:700;display:grid;gap:5px;color:#496554}
+.simo-form input,.simo-form select{max-width:100%;border:1px solid #cddbcf;border-radius:10px;padding:12px;background:#fff;color:#203328}
+.simo-form button{justify-self:start;align-self:end}
+.simo-buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+@media(max-width:600px){
+ .simo-day{min-height:80px;padding:4px 3px;border-radius:9px;gap:3px}
+ .simo-days{gap:2px}
+ .simo-day-num{font-size:.81rem}
+ .simo-chip{font-size:.61rem;padding:2px 3px}
+ .simo-day-items{gap:2px}
+ .simo-form{grid-template-columns:1fr}
+ .simo-task-number{width:30px;flex-basis:30px;height:30px;font-size:.75rem}
+ .simo-task{gap:7px}
+ .simo-task-controls .btn{padding:7px 8px}
+ .simo-legend{grid-template-columns:1fr}
+}
