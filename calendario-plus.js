@@ -85,7 +85,7 @@
     return `<div class="simo-task">
        <div class="simo-task-number">#${item.number}</div>
        <div class="simo-task-body"><strong>${esc(label(item.p))}</strong><small>${markFor(item)} ${esc(when)}${item.overdue?' · In ritardo dal '+esc(format(item.date)):''}</small></div>
-       <div class="simo-task-controls"><button type="button" class="btn btn-small btn-soft" data-cal="done" data-pid="${esc(item.p.id)}" data-type="${esc(item.type)}" data-reminder="${esc(item.id||'')}" data-date="${esc(item.date)}">Fatto ✓</button>${custom?`<button type="button" class="simo-delete" data-cal="delete" data-reminder="${esc(item.id)}" aria-label="Elimina ${esc(when)} per ${esc(detail)}">×</button>`:''}</div>
+       <div class="simo-task-controls">${item.date>today()?'<span class="muted tiny">In programma</span>':`<button type="button" class="btn btn-small btn-soft" data-cal="done" data-pid="${esc(item.p.id)}" data-type="${esc(item.type)}" data-reminder="${esc(item.id||'')}" data-date="${esc(item.date)}">Fatto ✓</button>`}${custom?`<button type="button" class="simo-delete" data-cal="delete" data-reminder="${esc(item.id)}" aria-label="Elimina ${esc(when)} per ${esc(detail)}">×</button>`:''}</div>
      </div>`;
   }
   function refreshPanel(){
@@ -107,7 +107,7 @@
         <button class="btn btn-small btn-soft" data-cal="today">Oggi</button>
       </div>
       <div class="simo-nav"><button data-cal="previous" aria-label="Periodo precedente">‹</button><strong>${esc(title)}</strong><button data-cal="next" aria-label="Periodo successivo">›</button></div>
-      <p class="simo-calendar-summary">${total} attività previste nel periodo · ${data.plants.length} piante · 🕗 Avvisi alle 20:00</p>
+      <p class="simo-calendar-summary">${total} attività previste nel periodo · ${data.plants.length} piante · 🕗 Avvisi alle 20:00<br>💧 Acqua · 🌱 Concime · 🔔 Altre cure</p>
       ${calendarCells(span,rec)}
       <div class="simo-day-detail" id="simo-day-details"></div>
       ${rec.overdue.length?`<details class="simo-drawer"><summary>⚠️ ${rec.overdue.length} attività scadute da verificare</summary>${rec.overdue.map(line).join('')}</details>`:''}
