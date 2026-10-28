@@ -1,9 +1,9 @@
-const CACHE = 'ifiori-simo-shell-v041-new-icon';
+const CACHE = 'ifiori-simo-shell-v050-calendar';
 const PREFIX = 'ifiori-simo-shell-';
 const FILES = [
   './', './index.html', './installa.html', './styles.css',
   './catalogo.js', './catalogo-extra.js', './identifica.js',
-  './app.js', './cure.js', './diagnosi-foto.js', './install.js', './manifest.webmanifest',
+  './app.js', './calendario-plus.js', './cure.js', './diagnosi-foto.js', './install.js', './manifest.webmanifest',
   './brand.png', './hero-girl.webp',
   './icons/icon-192-v041.png', './icons/icon-512-v041.png', './icons/apple-touch-icon-v041.png'
 ];
