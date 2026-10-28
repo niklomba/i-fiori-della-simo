@@ -70,14 +70,34 @@
     return {byDay,overdue:overdue.sort((a,b)=>a.date.localeCompare(b.date)||a.number-b.number)};
   }
   function format(s,options={day:'numeric',month:'long',year:'numeric'}) {return fromISO(s).toLocaleDateString('it-IT',options);}
-  function compact(task){return `<span class="simo-chip ${task.type}" title="${esc(label(task.p)+' · '+titleFor(task))}"><span class="simo-chip-icon" aria-hidden="true">${markFor(task)}</span><span class="simo-chip-name">${esc(label(task.p))}</span></span>`;}
+  const photoCache=new Map();
+  function photoUrl(p){
+    if(!p||typeof p.photo!=='string'||!/^data:image\/(jpeg|png|webp);base64,/i.test(p.photo))return '';
+    const saved=photoCache.get(p.id);
+    if(saved?.data===p.photo)return saved.url;
+    if(saved){URL.revokeObjectURL(saved.url);photoCache.delete(p.id);}
+    try{
+      const type=p.photo.slice(5,p.photo.indexOf(';'));
+      const base64=p.photo.slice(p.photo.indexOf(',')+1);
+      const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+      const url=URL.createObjectURL(new Blob([bytes],{type}));
+      photoCache.set(p.id,{data:p.photo,url});
+      return url;
+    }catch(e){console.warn('Foto pianta non caricabile',e);return '';}
+  }
+  function compact(task){
+    const photo=photoUrl(task.p);
+    const fullLabel=label(task.p)+' · '+titleFor(task);
+    return `<button type="button" class="simo-chip ${task.type}" data-cal="photo" data-pid="${esc(task.p.id)}" data-date="${task.date}" data-type="${task.type}" title="${esc(fullLabel)}" aria-label="${esc('Apri foto di '+label(task.p)+'. Attività: '+titleFor(task))}">${photo?`<img class="simo-chip-photo" src="${esc(photo)}" alt="" loading="lazy">`:`<span class="simo-chip-placeholder" aria-hidden="true">🪴</span>`}<span class="simo-chip-icon" aria-hidden="true">${markFor(task)}</span></button>`;
+  }
   function calendarCells(span,records){
     const weekdays=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
     let html=`<div class="simo-weekdays">${weekdays.map(d=>`<span>${d}</span>`).join('')}</div><div class="simo-days" role="grid" aria-label="Scadenze delle piante">`;
     for(let n=0;n<span.gridDays;n++){
       const date=addDays(span.gridStart,n),items=records.byDay.get(date)||[],active=date===prefs.selected,dim=prefs.mode==='month'&&(date<span.start||date>span.end);
-      html+=`<button type="button" class="simo-day ${active?'selected':''} ${dim?'outside':''} ${date===today()?'current':''}" data-cal="pick" data-date="${date}" aria-label="${esc(format(date)+': '+items.length+' attività')}" aria-pressed="${active}">
-        <span class="simo-day-num">${Number(date.slice(-2))}</span><span class="simo-day-items">${items.slice(0,prefs.mode==='month'?3:4).map(compact).join('')}${items.length>(prefs.mode==='month'?3:4)?`<span class="simo-more">+${items.length-(prefs.mode==='month'?3:4)} altre</span>`:''}</span></button>`;
+      html+=`<div class="simo-day ${active?'selected':''} ${dim?'outside':''} ${date===today()?'current':''}">
+        <button type="button" class="simo-day-date" data-cal="pick" data-date="${date}" aria-label="${esc(format(date)+': '+items.length+' attività')}" aria-pressed="${active}"><span class="simo-day-num">${Number(date.slice(-2))}</span></button>
+        <span class="simo-day-items">${items.slice(0,prefs.mode==='month'?3:4).map(compact).join('')}${items.length>(prefs.mode==='month'?3:4)?`<button type="button" class="simo-more" data-cal="pick" data-date="${date}" aria-label="Vedi altre ${items.length-(prefs.mode==='month'?3:4)} attività">+${items.length-(prefs.mode==='month'?3:4)}</button>`:''}</span></div>`;
     }
     return html+'</div>';
   }
@@ -211,7 +231,20 @@
       if(action==='delete'){if(confirm('Eliminare questa attività programmata?'))await ctx?.deleteReminder?.(btn.dataset.reminder);return;}
       if(action==='mode'){prefs.mode=btn.dataset.mode;prefs.anchor=prefs.selected;render(q('#main'),ctx);return;}
       if(action==='today'){prefs.anchor=today();prefs.selected=today();render(q('#main'),ctx);return;}
-      if(action==='pick'){prefs.selected=btn.dataset.date;document.querySelectorAll('[data-cal="pick"]').forEach(n=>{const selected=n.dataset.date===prefs.selected;n.classList.toggle('selected',selected);n.setAttribute('aria-pressed',String(selected));});refreshPanel();persist();return;}
+      if(action==='photo'){
+        prefs.selected=btn.dataset.date;
+        document.querySelectorAll('.simo-day').forEach(day=>day.classList.toggle('selected',day.querySelector('[data-cal="pick"]')?.dataset.date===prefs.selected));
+        document.querySelectorAll('.simo-day-date').forEach(n=>n.setAttribute('aria-pressed',String(n.dataset.date===prefs.selected)));
+        refreshPanel();persist();
+        ctx?.showPhoto?.(btn.dataset.pid,btn.dataset.date,btn.dataset.type);
+        return;
+      }
+      if(action==='pick'){
+        prefs.selected=btn.dataset.date;
+        document.querySelectorAll('.simo-day').forEach(day=>day.classList.toggle('selected',day.querySelector('[data-cal="pick"]')?.dataset.date===prefs.selected));
+        document.querySelectorAll('.simo-day-date').forEach(n=>n.setAttribute('aria-pressed',String(n.dataset.date===prefs.selected)));
+        refreshPanel();persist();return;
+      }
       if(action==='previous'||action==='next'){move(action==='next'?1:-1);render(q('#main'),ctx);}
     });
     document.addEventListener('submit',async e=>{
@@ -225,5 +258,5 @@
     setInterval(checkAlerts,30000);
     checkAlerts();
   }
-  window.SIMO_CAL={boot,render,collect,downloadICS};
+  window.SIMO_CAL={boot,render,collect,downloadICS,photoUrl};
 })();
