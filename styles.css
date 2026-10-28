@@ -221,3 +221,30 @@
  .simo-task-controls .btn{padding:7px 8px}
  .simo-legend{grid-template-columns:1fr}
 }
+
+
+/* Calendario fotografico: anteprima pianta e simbolo dell'attività */
+.simo-day-date{display:block;width:100%;padding:1px 0;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer;font:inherit}
+.simo-day-date:focus-visible,.simo-chip:focus-visible,.simo-more:focus-visible{outline:2px solid #27764f;outline-offset:2px}
+.simo-chip{display:flex;align-items:center;justify-content:center;flex-direction:row;gap:3px;width:100%;min-width:0;min-height:34px;padding:2px;border:1px solid transparent;border-radius:7px;cursor:pointer}
+.simo-chip:hover{border-color:#98c5a1}
+.simo-chip-photo{display:block;width:min(32px,72%);height:auto;aspect-ratio:1/1;object-fit:cover;flex:0 1 auto;border-radius:6px;background:#f1f5ef}
+.simo-chip-placeholder{display:grid;place-items:center;width:min(32px,72%);aspect-ratio:1/1;flex:0 1 auto;border-radius:6px;background:#f1f5ef;font-size:18px}
+.simo-chip-icon{flex:0 0 auto;font-size:.78rem;line-height:1}
+.simo-chip-name{display:none}
+.simo-more{width:100%;border:0;background:transparent;color:#3a684b;cursor:pointer;font-size:.69rem;padding:2px}
+.simo-photo-stage{width:100%;max-height:65vh;display:grid;place-items:center;overflow:auto;border-radius:15px;background:#eef4ea;padding:8px}
+.simo-calendar-photo-large{display:block;max-width:100%;width:auto;height:auto;max-height:62vh;object-fit:contain;border-radius:10px}
+.simo-calendar-photo-empty{width:100%;min-height:180px;display:grid;place-items:center;align-content:center;gap:8px;font-size:52px;color:#456c4e}
+.simo-calendar-photo-empty small{font-size:.86rem}
+.simo-photo-plant-title{margin:15px 0 7px}
+.simo-photo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:600px){
+ .simo-day{padding:3px 2px;gap:3px;min-height:90px}
+ .simo-chip{min-height:27px;gap:1px;padding:1px 0;border-radius:5px}
+ .simo-chip-photo,.simo-chip-placeholder{width:min(24px,69%);border-radius:4px}
+ .simo-chip-placeholder{font-size:14px}
+ .simo-chip-icon{font-size:.61rem}
+ .simo-photo-stage{padding:4px}
+ .simo-calendar-photo-large{max-height:60vh}
+}
