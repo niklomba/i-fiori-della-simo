@@ -1,4 +1,4 @@
-const CACHE = 'ifiori-simo-shell-v050-calendar';
+const CACHE = 'ifiori-simo-shell-v051-photo-calendar';
 const PREFIX = 'ifiori-simo-shell-';
 const FILES = [
   './', './index.html', './installa.html', './styles.css',
