@@ -70,14 +70,14 @@
     return {byDay,overdue:overdue.sort((a,b)=>a.date.localeCompare(b.date)||a.number-b.number)};
   }
   function format(s,options={day:'numeric',month:'long',year:'numeric'}) {return fromISO(s).toLocaleDateString('it-IT',options);}
-  function compact(task){return `<span class="simo-chip ${task.type}" title="${esc('#'+task.number+' '+label(task.p)+' · '+titleFor(task))}">${task.number}${markFor(task)}</span>`;}
+  function compact(task){return `<span class="simo-chip ${task.type}" title="${esc(label(task.p)+' · '+titleFor(task))}"><span class="simo-chip-icon" aria-hidden="true">${markFor(task)}</span><span class="simo-chip-name">${esc(label(task.p))}</span></span>`;}
   function calendarCells(span,records){
     const weekdays=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
     let html=`<div class="simo-weekdays">${weekdays.map(d=>`<span>${d}</span>`).join('')}</div><div class="simo-days" role="grid" aria-label="Scadenze delle piante">`;
     for(let n=0;n<span.gridDays;n++){
       const date=addDays(span.gridStart,n),items=records.byDay.get(date)||[],active=date===prefs.selected,dim=prefs.mode==='month'&&(date<span.start||date>span.end);
       html+=`<button type="button" class="simo-day ${active?'selected':''} ${dim?'outside':''} ${date===today()?'current':''}" data-cal="pick" data-date="${date}" aria-label="${esc(format(date)+': '+items.length+' attività')}" aria-pressed="${active}">
-        <span class="simo-day-num">${Number(date.slice(-2))}</span><span class="simo-day-items">${items.slice(0,4).map(compact).join('')}${items.length>4?`<span class="simo-more">+${items.length-4}</span>`:''}</span></button>`;
+        <span class="simo-day-num">${Number(date.slice(-2))}</span><span class="simo-day-items">${items.slice(0,prefs.mode==='month'?3:4).map(compact).join('')}${items.length>(prefs.mode==='month'?3:4)?`<span class="simo-more">+${items.length-(prefs.mode==='month'?3:4)} altre</span>`:''}</span></button>`;
     }
     return html+'</div>';
   }
