@@ -96,11 +96,43 @@
     if(!window.SIMO_CAL){main.innerHTML=header('Calendario','Ricarica la pagina per aggiornare il calendario.');return;}
     window.SIMO_CAL.render(main,{
       header,toast,
+      showPhoto:showCalendarPhoto,
       completeCare:addEvent,
       addReminder:calendarAddReminder,
       completeReminder:calendarCompleteReminder,
       deleteReminder:calendarDeleteReminder
     });
+  }
+
+  function showCalendarPhoto(id,date,type){
+    const plant=state.plants.find(p=>p.id===id);
+    if(!plant)return;
+    const photo=window.SIMO_CAL?.photoUrl?.(plant)||'';
+    const careLabel=type==='water'?'💧 Irrigazione':type==='feed'?'🌱 Concimazione':'🔔 Attività programmata';
+    const when=/^\d{4}-\d\d-\d\d$/.test(date||'')?showDate(date,{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+    showModal(esc(plantName(plant)),`
+      <div class="simo-photo-stage">
+        ${photo?`<img id="simo-calendar-photo-large" class="simo-calendar-photo-large" src="${attr(photo)}" alt="Foto originale di ${attr(plantName(plant))}">`:
+          `<div class="simo-calendar-photo-empty" aria-label="Foto non disponibile">🪴<small>Nessuna foto salvata per questa pianta</small></div>`}
+      </div>
+      <h3 class="simo-photo-plant-title">${esc(plantName(plant))}</h3>
+      <p class="muted">📍 ${esc(plant.location||'Posizione non indicata')} · ${esc(careLabel)}${when?' · '+esc(when):''}</p>
+      ${photo?`<p id="simo-calendar-photo-resolution" class="muted tiny">Fotografia originale, senza ritagli. Le dimensioni in pixel saranno mostrate dopo il caricamento.</p>
+        <a class="btn btn-soft" href="${attr(photo)}" target="_blank" rel="noopener noreferrer">🔍 Apri fotografia a risoluzione originale</a>`:
+        `<p class="muted tiny">Aggiungi una foto alla scheda della pianta per visualizzarla qui.</p>`}
+      <div class="simo-photo-actions">
+        ${btn('🪴 Apri scheda completa','detail',`data-id="${attr(plant.id)}"`,'btn-primary')}
+        ${!photo?btn('Aggiungi fotografia','edit-plant',`data-id="${attr(plant.id)}"`,'btn-soft'):''}
+      </div>
+      <p class="muted tiny">La fotografia può essere visualizzata nelle dimensioni originali. Non permette di misurare le dimensioni fisiche della pianta in centimetri.</p>
+    `);
+    const image=modalContent.querySelector('#simo-calendar-photo-large');
+    const resolution=modalContent.querySelector('#simo-calendar-photo-resolution');
+    if(image&&resolution){
+      const updateResolution=()=>{if(image.naturalWidth&&image.naturalHeight)resolution.textContent=`Risoluzione originale della foto: ${image.naturalWidth} × ${image.naturalHeight} pixel.`;};
+      image.addEventListener('load',updateResolution,{once:true});
+      if(image.complete)updateResolution();
+    }
   }
 
   function catalogItems(){const q=catalogQuery.trim().toLocaleLowerCase('it');return catalog.filter(c=>(catalogFilter==='tutte'||c.tipo===catalogFilter) && [c.nome,c.scientifico,c.descrizione].some(s=>s.toLocaleLowerCase('it').includes(q)));}
