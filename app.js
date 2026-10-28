@@ -2,7 +2,7 @@
 (() => {
   const DB_NAME='i-fiori-della-simo-v1', STORE='records', KEY='stato';
   const catalog=window.CATALOGO_SIMO || [];
-  const blankState=()=>({schema:1,plants:[],events:[],createdAt:new Date().toISOString()});
+  const blankState=()=>({schema:1,plants:[],events:[],reminders:[],createdAt:new Date().toISOString()});
   let state=blankState();
   let view='oggi';
   let gardenQuery='', catalogQuery='', gardenFilter='tutte', catalogFilter='tutte', catalogShown=24;
@@ -29,7 +29,22 @@
   function openDb(){return new Promise((resolve,reject)=>{const request=indexedDB.open(DB_NAME,1);request.onupgradeneeded=()=>request.result.createObjectStore(STORE);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)});}
   function transaction(mode,work){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,mode);const request=work(tx.objectStore(STORE));tx.oncomplete=()=>resolve(request?.result);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
   async function save(){await transaction('readwrite',store=>store.put(state,KEY));}
-  async function load(){const v=await transaction('readonly',store=>store.get(KEY));if(v){state=v;state.plants=Array.isArray(state.plants)?state.plants:[];state.events=Array.isArray(state.events)?state.events:[];}else await save();}
+  async function load(){
+    const v=await transaction('readonly',store=>store.get(KEY));
+    if(v){
+      state=v;
+      state.plants=Array.isArray(state.plants)?state.plants:[];
+      state.events=Array.isArray(state.events)?state.events:[];
+      state.reminders=Array.isArray(state.reminders)?state.reminders:[];
+      let changed=false;
+      const used=new Set();let largest=Math.max(0,...state.plants.map(p=>Number.isInteger(p.calendarNumber)&&p.calendarNumber>0?p.calendarNumber:0));
+      for(const p of state.plants){
+        if(!Number.isInteger(p.calendarNumber)||p.calendarNumber<1||used.has(p.calendarNumber)){p.calendarNumber=++largest;changed=true;}
+        used.add(p.calendarNumber);
+      }
+      if(changed)await save();
+    }else await save();
+  }
   function toast(message){clearTimeout(toastTimer);const t=$('#toast');t.textContent=message;t.hidden=false;toastTimer=setTimeout(()=>t.hidden=true,3300);}
   function toastUndo(message,eventId){
     clearTimeout(toastTimer);
@@ -77,7 +92,16 @@
   function renderGarden(){const locs=[...new Set(state.plants.map(p=>p.location).filter(Boolean))].sort();main.innerHTML=header('Il mio giardino','Tutte le tue piante in un unico posto, con fotografie e storico degli interventi.',btn('＋ Nuova pianta','new-plant'))+`<div class="toolbar"><label class="search-field">🔎 <input id="gardenSearch" placeholder="Cerca tra le tue piante..." value="${attr(gardenQuery)}" autocomplete="off" aria-label="Cerca tra le mie piante"></label><select id="gardenFilter" class="filter-select" aria-label="Filtra per ambiente"><option value="tutte">Tutti gli ambienti</option>${locs.map(l=>`<option value="${attr(l)}" ${gardenFilter===l?'selected':''}>${esc(l)}</option>`).join('')}</select></div><div id="gardenResults"></div><p class="footer-note">Consiglio: puoi registrare più esemplari della stessa specie con nomi diversi.</p>`;updateGardenResults();}
   function updateGardenResults(){const items=gardenItems();$('#gardenResults').innerHTML=items.length?`<div class="plant-grid">${items.map(plantCard).join('')}</div>`:empty('🪴',state.plants.length?'Nessuna corrispondenza':'Il giardino ti aspetta',state.plants.length?'Modifica i filtri o la ricerca per ritrovare le tue piante.':'Registra la tua prima pianta: ti aiuteremo a ricordare come prendertene cura.',state.plants.length?'':'new-plant','Aggiungi la prima pianta');}
 
-  function renderCalendar(){const all=tasks(),overdue=all.filter(t=>t.days<0),days=Array.from({length:15},(_,i)=>addDays(dateLocal(),i));const dayCards=days.map((date,i)=>{const items=all.filter(t=>t.date===date);return items.length?`<section class="day-group"><h3>${i===0?'Oggi · ':''}${showDate(date,{weekday:'long',day:'numeric',month:'long'})}</h3><div class="due-list">${items.map(taskRow).join('')}</div></section>`:''}).filter(Boolean).join('');main.innerHTML=header('Calendario delle cure','Controlla le prossime scadenze e registra gli interventi fatti.')+`<div class="alert" style="margin-bottom:20px">Le frequenze sono indicative e non sostituiscono il controllo di terra, luce e stagione. Questa prima versione non invia notifiche quando è chiusa.</div>${recentCareNotice()}${state.plants.length?(overdue?`<div class="section-head"><h2>Da verificare (${overdue.length})</h2></div><div class="due-list">${overdue.map(taskRow).join('')}</div>`:'')+`<div class="section-head"><h2>Prossimi 15 giorni</h2></div><div class="schedule-days">${dayCards||`<div class="panel">Nessuna cura pianificata nei prossimi 15 giorni.</div>`}</div>`:empty('📅','Il calendario è vuoto','Aggiungi una pianta: creeremo le prime scadenze di irrigazione e concimazione.','new-plant','Aggiungi pianta')}`;}
+  function renderCalendar(){
+    if(!window.SIMO_CAL){main.innerHTML=header('Calendario','Ricarica la pagina per aggiornare il calendario.');return;}
+    window.SIMO_CAL.render(main,{
+      header,toast,
+      completeCare:addEvent,
+      addReminder:calendarAddReminder,
+      completeReminder:calendarCompleteReminder,
+      deleteReminder:calendarDeleteReminder
+    });
+  }
 
   function catalogItems(){const q=catalogQuery.trim().toLocaleLowerCase('it');return catalog.filter(c=>(catalogFilter==='tutte'||c.tipo===catalogFilter) && [c.nome,c.scientifico,c.descrizione].some(s=>s.toLocaleLowerCase('it').includes(q)));}
   function catalogCard(c){return `<article class="panel ency-card"><div class="ency-head"><div class="ency-emoji">${c.emoji}</div><div><h3>${esc(c.nome)}</h3><div class="latin">${esc(c.scientifico)}</div></div></div>${c.essenziale?`<div class="ency-meta"><span>${esc(c.tipo)}</span><span>Scheda essenziale</span></div>`:`<p class="description">${esc(c.descrizione)}</p><div class="ency-meta"><span>☀ ${esc(c.luce)}</span><span>💧 Stima ${c.acqua} g</span><span>${esc(c.tipo)}</span></div>`}<div class="ency-buttons">${btn('Dettagli','catalog-detail',`data-id="${attr(c.id)}"`,'btn-ghost btn-small')}${btn('＋ Giardino','new-plant',`data-species="${attr(c.id)}"`,'btn-soft btn-small')}</div></article>`;}
@@ -199,7 +223,7 @@
     const file=$('#pphoto').files[0];let photo=previous?.photo||window.SIMO_ID?.pendingPhoto||'';if(file){try{photo=await compressPhoto(file)}catch(e){toast(e.message);return;}}
     const potRaw=String(f.get('potDiameterCm')||'').trim(),amountRaw=String(f.get('waterAmountMl')||'').trim();
     if((potRaw&&(!Number.isInteger(Number(potRaw))||Number(potRaw)<0||Number(potRaw)>80))||(amountRaw&&(!Number.isInteger(Number(amountRaw))||Number(amountRaw)<0||Number(amountRaw)>30000))){toast('Controlla il diametro del vaso o la quantità d’acqua.');return;}
-    const entry={id:id||uid(),catalogId:String(f.get('catalogId')||''),nickname,species:String(f.get('species')||'').trim(),location:String(f.get('location')||'').trim(),light:String(f.get('light')||''),waterInterval,feedInterval,lastWater:String(f.get('lastWater')||''),lastFeed:String(f.get('lastFeed')||''),photo,notes:String(f.get('notes')||'').trim(),createdOn:previous?.createdOn||dateLocal(),
+    const entry={id:id||uid(),calendarNumber:previous?.calendarNumber||Math.max(0,...state.plants.map(p=>Number(p.calendarNumber)||0))+1,catalogId:String(f.get('catalogId')||''),nickname,species:String(f.get('species')||'').trim(),location:String(f.get('location')||'').trim(),light:String(f.get('light')||''),waterInterval,feedInterval,lastWater:String(f.get('lastWater')||''),lastFeed:String(f.get('lastFeed')||''),photo,notes:String(f.get('notes')||'').trim(),createdOn:previous?.createdOn||dateLocal(),
        containerType:String(f.get('containerType')||'vaso'),potDiameterCm:potRaw?Number(potRaw):null,
        waterAmountMl:amountRaw?Number(amountRaw):null,soilType:String(f.get('soilType')||'').trim().slice(0,120),drainage:String(f.get('drainage')||'unknown')};
     const oldPlants=state.plants.slice();if(previous)state.plants=state.plants.map(p=>p.id===id?entry:p);else state.plants.push(entry);
@@ -275,10 +299,28 @@
     finally{careSaving=false;}
   }
   function eventForm(id){const p=state.plants.find(p=>p.id===id);if(!p)return;showModal('Nuova nota o intervento',`<form id="eventForm" data-id="${attr(id)}" class="form-grid"><div class="form-field full"><label for="eventType">Tipo di intervento</label><select id="eventType" name="type"><option value="note">📝 Nota</option><option value="prune">✂️ Potatura</option><option value="repot">🪴 Rinvaso</option></select></div><div class="form-field full"><label for="eventText">Descrizione</label><textarea name="text" id="eventText" maxlength="1500" required placeholder="Che cosa hai notato o fatto?"></textarea></div><div class="form-actions full">${btn('Annulla','close-modal','','btn-ghost')}<button class="btn btn-primary" type="submit">Registra intervento</button></div></form>`);}
-  async function deletePlant(id){const p=state.plants.find(p=>p.id===id);if(!p)return;if(!confirm(`Eliminare "${plantName(p)}" e tutto il suo diario?`))return;const prev=structuredClone(state);state.plants=state.plants.filter(p=>p.id!==id);state.events=state.events.filter(e=>e.plantId!==id);if(!state.events.some(e=>e.id===lastCareEventId))lastCareEventId='';try{await save();closeModal();render();toast('Pianta eliminata.');}catch(e){state=prev;errorToast(e);}}
-  function exportFile(){const payload={app:'I FIORI della SIMO',version:'0.2.0',exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`i-fiori-della-simo-backup-${dateLocal()}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);toast('Backup pronto da salvare.');}
-  async function importFile(file){if(!file)return;if(file.size>60*1024*1024){toast('Il file supera 60 MB.');return;}try{const payload=JSON.parse(await file.text());if(payload.app!=='I FIORI della SIMO'||payload.data?.schema!==1||!Array.isArray(payload.data.plants)||!Array.isArray(payload.data.events))throw new Error('Formato non compatibile.');for(const p of payload.data.plants){if(typeof p.id!=='string'||typeof p.nickname!=='string'||(p.photo&& !/^data:image\/(jpeg|png|webp);base64,/i.test(p.photo)))throw new Error('Una scheda del backup non è valida.');}if(!confirm(`Importare ${payload.data.plants.length} piante e ${payload.data.events.length} registrazioni? I dati attuali saranno sostituiti.`))return;const prior=state;state=payload.data;lastCareEventId='';try{await save();render();toast('Backup ripristinato correttamente.');}catch(e){state=prior;errorToast(e);}}catch(e){toast(`Importazione non riuscita: ${e.message}`);}finally{$('#restoreInput').value='';}}
+  async function deletePlant(id){const p=state.plants.find(p=>p.id===id);if(!p)return;if(!confirm(`Eliminare "${plantName(p)}" e tutto il suo diario?`))return;const prev=structuredClone(state);state.plants=state.plants.filter(p=>p.id!==id);state.events=state.events.filter(e=>e.plantId!==id);state.reminders=(state.reminders||[]).filter(r=>r.plantId!==id);if(!state.events.some(e=>e.id===lastCareEventId))lastCareEventId='';try{await save();closeModal();render();toast('Pianta eliminata.');}catch(e){state=prev;errorToast(e);}}
+  function exportFile(){const payload={app:'I FIORI della SIMO',version:'0.5.0',exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`i-fiori-della-simo-backup-${dateLocal()}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);toast('Backup pronto da salvare.');}
+  async function importFile(file){if(!file)return;if(file.size>60*1024*1024){toast('Il file supera 60 MB.');return;}try{const payload=JSON.parse(await file.text());if(payload.app!=='I FIORI della SIMO'||payload.data?.schema!==1||!Array.isArray(payload.data.plants)||!Array.isArray(payload.data.events))throw new Error('Formato non compatibile.');for(const p of payload.data.plants){if(typeof p.id!=='string'||typeof p.nickname!=='string'||(p.photo&& !/^data:image\/(jpeg|png|webp);base64,/i.test(p.photo)))throw new Error('Una scheda del backup non è valida.');}if(!confirm(`Importare ${payload.data.plants.length} piante e ${payload.data.events.length} registrazioni? I dati attuali saranno sostituiti.`))return;const prior=state;state=payload.data;state.reminders=Array.isArray(state.reminders)?state.reminders:[];const used=new Set();let largest=Math.max(0,...state.plants.map(p=>Number(p.calendarNumber)||0));for(const p of state.plants){if(!Number.isInteger(p.calendarNumber)||p.calendarNumber<1||used.has(p.calendarNumber))p.calendarNumber=++largest;used.add(p.calendarNumber);}lastCareEventId='';try{await save();render();toast('Backup ripristinato correttamente.');}catch(e){state=prior;errorToast(e);}}catch(e){toast(`Importazione non riuscita: ${e.message}`);}finally{$('#restoreInput').value='';}}
   async function resetAll(){if(!confirm('Eliminare definitivamente tutte le piante e il diario di questo dispositivo?'))return;if(!confirm('Ultima conferma: hai esportato un backup?'))return;const prev=state;state=blankState();lastCareEventId='';try{await save();setView('oggi');toast('Archivio locale azzerato.')}catch(e){state=prev;errorToast(e);}}
+
+  async function calendarAddReminder(record){
+    const old=state.reminders.slice();
+    state.reminders.push({id:uid(),plantId:record.plantId,title:record.title.slice(0,90),date:record.date,repeatDays:record.repeatDays,doneDates:[]});
+    try{await save();render();toast('Attività programmata nel calendario.');}catch(e){state.reminders=old;errorToast(e);}
+  }
+  async function calendarCompleteReminder(id,date){
+    const item=state.reminders.find(r=>r.id===id);if(!item)return;
+    const old=structuredClone(state.reminders);
+    item.doneDates=Array.isArray(item.doneDates)?item.doneDates:[];
+    if(!item.doneDates.includes(date))item.doneDates.push(date);
+    try{await save();render();toast('Attività completata.');}catch(e){state.reminders=old;errorToast(e);}
+  }
+  async function calendarDeleteReminder(id){
+    const old=state.reminders.slice();
+    state.reminders=state.reminders.filter(r=>r.id!==id);
+    try{await save();render();toast('Attività eliminata.');}catch(e){state.reminders=old;errorToast(e);}
+  }
 
   document.addEventListener('click',async e=>{const el=e.target.closest('[data-action],[data-view]');if(!el)return;if(el.dataset.view){setView(el.dataset.view);return;}const action=el.dataset.action, id=el.dataset.id;try{switch(action){case 'new-plant':if(window.SIMO_ID)window.SIMO_ID.pendingPhoto='';plantForm('',el.dataset.species||'');break;case 'recognized-plant':plantForm('',el.dataset.catalogId||'');$('#pname').value=el.dataset.name||el.dataset.scientific||'';$('#pcustom').value=el.dataset.scientific||el.dataset.name||'';if(window.SIMO_ID)window.SIMO_ID.pendingPhoto=el.dataset.fromScan==='1'?(window.SIMO_ID.getPhoto()||''):'';break;case 'more-plants':catalogShown+=24;updateCatalogResults();break;case 'search-world':await searchWorld();break;case 'edit-plant':plantForm(id);break;case 'detail':plantDetail(id);break;case 'catalog-detail':catalogDetail(id);break;case 'close-modal':closeModal();break;case 'do-task':await addEvent(id,el.dataset.type);break;case 'undo-care':await undoCareEvent(el.dataset.eventId);break;case 'new-event':eventForm(id);break;case 'delete-plant':await deletePlant(id);break;case 'calendar':setView('calendario');break;case 'diagnosi':setView('diagnosi');break;case 'diagnose':diagnose();break;case 'save-diagnosis':{
     const pid=window.SIMO_DIAG?.getChosenPlant?.(),text=window.SIMO_DIAG?.noteText?.();
@@ -293,6 +335,6 @@
   document.addEventListener('input',e=>{if(e.target.id==='gardenSearch'){gardenQuery=e.target.value;updateGardenResults();}if(e.target.id==='catalogSearch'){catalogQuery=e.target.value;catalogShown=24;updateCatalogResults();}if(e.target.id==='pphoto'){const file=e.target.files?.[0];if(file){const preview=$('#photoPreview');if(preview){preview.src=URL.createObjectURL(file);preview.style.display='block';}}}});
   document.addEventListener('change',e=>{if(e.target.id==='gardenFilter'){gardenFilter=e.target.value;updateGardenResults();}if(e.target.id==='catalogFilter'){catalogFilter=e.target.value;catalogShown=24;updateCatalogResults();}if(e.target.id==='pspecies'){const c=catalog.find(x=>x.id===e.target.value);if(c){$('#pcustom').value=c.nome;$('#plight').value=c.luce;$('#pwater').value=c.acqua;$('#pfeed').value=c.concime;}}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!modal.open)render();});
-  async function init(){try{db=await openDb();await load();render();if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('Offline SW non disponibile:',e));}catch(e){console.error(e);main.innerHTML=`<div class="panel"><h2>Archivio locale non accessibile</h2><p>Consenti al browser di conservare i dati per questo sito, quindi ricarica la pagina. ${esc(e.message)}</p></div>`;}}
+  async function init(){try{db=await openDb();await load();window.SIMO_CAL?.boot(()=>state);render();if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('Offline SW non disponibile:',e));}catch(e){console.error(e);main.innerHTML=`<div class="panel"><h2>Archivio locale non accessibile</h2><p>Consenti al browser di conservare i dati per questo sito, quindi ricarica la pagina. ${esc(e.message)}</p></div>`;}}
   init();
 })();
